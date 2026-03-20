@@ -2,7 +2,7 @@ name: Mekuru Meguru Auto Processor
 on:
   push:
     paths:
-      - 'uploads/**' # uploadsフォルダにファイルが入ったら起動
+      - 'uploads/**'
 
 jobs:
   build:
@@ -17,10 +17,16 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install Pillow
+        run: pip install Pillow
 
       - name: Process Files
+        run: python .github/scripts/processor.py
+
+      # --- ここが重要！成果物を倉庫に保存する設定 ---
+      - name: Commit and Push changes
         run: |
-          # ここに画像をWebPに変換したり仕分けたりする命令を書きます
-          python .github/scripts/processor.py
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-convert WebP and organize files" || echo "No changes to commit"
+          git push
